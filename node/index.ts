@@ -3,7 +3,7 @@ import * as readline from 'readline';
 
 // day 1
 async function day1() {
-	const stream = fs.createReadStream('./data/day1.txt');
+	const stream = fs.createReadStream('../data/day1.txt');
 
 	const rl = readline.createInterface({
 		input: stream,
@@ -99,7 +99,7 @@ async function day2() {
 		return shapes;
 	}
 
-	const stream = fs.createReadStream('./data/day2.txt');
+	const stream = fs.createReadStream('../data/day2.txt');
 
 	const rl = readline.createInterface({
 		input: stream,
@@ -145,7 +145,7 @@ async function day2() {
 }
 
 async function day3() {
-	const stream = fs.createReadStream('./data/day3.txt');
+	const stream = fs.createReadStream('../data/day3.txt');
 
 	const rl = readline.createInterface({
 		input: stream,
@@ -202,7 +202,7 @@ async function day3() {
 }
 
 async function day4() {
-	const stream = fs.createReadStream('./data/day4.txt');
+	const stream = fs.createReadStream('../data/day4.txt');
 	const rl = readline.createInterface({
 		input: stream,
 		crlfDelay: Infinity
