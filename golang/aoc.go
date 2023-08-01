@@ -159,7 +159,10 @@ func day5() {
 		source := moves[i].source - 1
 		for ; moves[i].count > 0; moves[i].count-- {
 			if len(crates[source]) > 0 {
-				charsToMove = append(charsToMove, crates[source][0])
+				// append for part one
+				// charsToMove = append(charsToMove, crates[source][0])
+				// prepend instead for part two
+				charsToMove = append([]string{crates[source][0]}, charsToMove...)
 				// pop from stack here
 				crates[source] = crates[source][1:]
 			}
