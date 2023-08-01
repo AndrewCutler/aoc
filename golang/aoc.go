@@ -62,14 +62,9 @@ func day1() {
 
 // if I continue to learn Go, I'm sure this will make me shudder in 6 months
 func day5() {
-	type move struct {
-		count  int
-		source int
-		dest   int
-	}
-	var stacks [][]string
+	var crates [][]string
 
-	file, err := os.Open("../data/day5.test.txt")
+	file, err := os.Open("../data/day5.txt")
 
 	if err != nil {
 		fmt.Println(err)
@@ -79,8 +74,8 @@ func day5() {
 	reader := bufio.NewReader(file)
 	var lineBytes []byte
 
-	var numOfCols float64
-	// put stack in proper columns
+	var numOfStacks float64
+	// put crate in proper stacks
 	for i := 1; ; i++ {
 		lineBytes, err = reader.ReadBytes('\n')
 		length := len(lineBytes)
@@ -90,12 +85,11 @@ func day5() {
 			break
 		}
 
-		// get number of columns, but only do so once
+		// get number of stacks, but only do so once
 		if i == 1 {
-			numOfCols = math.Ceil(float64(length / 4))
-			stacks = make([][]string, int(numOfCols))
+			numOfStacks = math.Ceil(float64(length / 4))
+			crates = make([][]string, int(numOfStacks))
 		}
-		// fmt.Printf("Number of columns: %v\n", numOfCols)
 
 		line := string(lineBytes[:])
 		// do until first line without [
@@ -105,24 +99,28 @@ func day5() {
 
 		offset := 1
 		step := 4
-		for j := 0; j < int(numOfCols); j++ {
+		for j := 0; j < int(numOfStacks); j++ {
 			currentPosition := offset + (step * j)
 			currentByte := lineBytes[currentPosition]
-			prev := stacks[j]
+			prev := crates[j]
 			currentChar := string(currentByte)
 			if currentChar != " " {
-				stacks[j] = append(prev, string(currentByte))
+				crates[j] = append(prev, string(currentByte))
 			}
 		}
 	}
 	// here we have each column in a string array, excluding whitespace
-	// fmt.Println(stacks)
 
 	if err != io.EOF && err != nil {
 		fmt.Println(err)
 	}
 
-	// do moving of stacks
+	// figure out what goes where
+	type move struct {
+		count  int
+		source int
+		dest   int
+	}
 	i := 0
 	moves := make([]move, 0)
 	for {
@@ -135,16 +133,13 @@ func day5() {
 		line := string(lineBytes[:])
 
 		// for debugging
-		// fmt.Printf("i = %v; %v\n", i, line)
 		if strings.HasPrefix(line, "move") {
-			// fmt.Printf("i = %v; %v\n", i, line)
-
 			// get numbers: first is count, second is source, third is destination
-			re := regexp.MustCompile("\\d")
+			re := regexp.MustCompile("\\s\\d+\\s?")
 			nums := re.FindAllString(line, 3)
-			count, countErr := strconv.Atoi(nums[0])
-			source, sourceErr := strconv.Atoi(nums[1])
-			dest, destErr := strconv.Atoi(nums[2])
+			count, countErr := strconv.Atoi(strings.TrimSpace(nums[0]))
+			source, sourceErr := strconv.Atoi(strings.TrimSpace(nums[1]))
+			dest, destErr := strconv.Atoi(strings.TrimSpace(nums[2]))
 			if countErr != nil || sourceErr != nil || destErr != nil {
 				break
 			}
@@ -152,27 +147,39 @@ func day5() {
 			moves = append(moves, move)
 		}
 		i++
-
 		if err == io.EOF {
 			fmt.Println("done reading file")
 			break
 		}
 	}
 
-	// now we have all the moves
-	fmt.Println(stacks)
+	// now we have all the moves so let's move them
 	for i := 0; i < len(moves); i++ {
 		charsToMove := make([]string, 0)
-		source := moves[i].source-1
-		// fmt.Println(stacks[source])
-		for j := 0; moves[i].count > 0; moves[i].count-- {
-			// fmt.Printf("current char: %v\n", stacks[source][j])
-			charsToMove = append(charsToMove, stacks[source][j])
-			// pop from stack here
-			j++ // how do I do this in the for post statement?
+		source := moves[i].source - 1
+		for ; moves[i].count > 0; moves[i].count-- {
+			if len(crates[source]) > 0 {
+				charsToMove = append(charsToMove, crates[source][0])
+				// pop from stack here
+				crates[source] = crates[source][1:]
+			}
 		}
-		fmt.Println(charsToMove)
-		// have charsToMove for current move; now pop from stack and push to dest
+		// have charsToMove for current move; now push to dest
+		dest := moves[i].dest - 1
+		for len(charsToMove) > 0 {
+			crates[dest] = append([]string{charsToMove[0]}, crates[dest]...)
+			charsToMove = charsToMove[1:]
+		}
 	}
-	fmt.Println(stacks)
+
+	// now we get the first element in each column
+	topCrates := make([]string, 0)
+	for i := 0; i < int(numOfStacks); i++ {
+		if len(crates[i]) > 0 {
+			topCrates = append(topCrates, crates[i][0])
+		}
+	}
+
+	fmt.Printf("Part one: %v\n", topCrates)
+	fmt.Println("Nice.")
 }
