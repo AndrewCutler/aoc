@@ -148,12 +148,13 @@ func day5() {
 		}
 		i++
 		if err == io.EOF {
-			fmt.Println("done reading file")
+			fmt.Print("Done reading file. ")
 			break
 		}
 	}
 
 	// now we have all the moves so let's move them
+	fmt.Print("Moving crates...\n")
 	for i := 0; i < len(moves); i++ {
 		charsToMove := make([]string, 0)
 		source := moves[i].source - 1
