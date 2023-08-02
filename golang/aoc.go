@@ -15,7 +15,8 @@ import (
 func main() {
 	// day1()
 	// day5()
-	day6()
+	day6(4) // part one
+	day6(14) // part two
 }
 
 func day1() {
@@ -189,7 +190,7 @@ func day5() {
 	fmt.Println("Nice.")
 }
 
-func day6() {
+func day6(packetsize int) {
 	// find first four-character sequence where all characters are distinct
 	file, err := os.Open("../data/day6.txt")
 
@@ -200,7 +201,7 @@ func day6() {
 
 	reader := bufio.NewReader(file)
 
-	marker := make([]byte, 0, 4)
+	marker := make([]byte, 0, packetsize)
 	answer := 1
 	for {
 		char, err := reader.ReadByte()
@@ -216,15 +217,14 @@ func day6() {
 		// once size is four, check for uniques
 		// if success, break with answer
 		// if failure, dequeue
-		if len(marker) == 4 {
+		if len(marker) == packetsize {
 			visited := make(map[byte]bool)
 			for i, curr := range marker {
 				if visited[curr] == true {
 					// we have a failure
-					fmt.Printf("Duplicate %v found in marker %v\n", curr, marker)
 					marker = marker[1:]
 					break
-				} else if i == 3 {
+				} else if i == packetsize-1 {
 					goto done
 				} else {
 					visited[curr] = true
@@ -235,5 +235,5 @@ func day6() {
 	}
 
 	done: 
-		fmt.Printf("Part one: %v\nPart Two: %v\n", answer, "not started")
+		fmt.Printf("Solution: %v\n", answer)
 }
