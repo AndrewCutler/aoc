@@ -191,7 +191,6 @@ func day5() {
 }
 
 func day6(packetsize int) {
-	// find first four-character sequence where all characters are distinct
 	file, err := os.Open("../data/day6.txt")
 
 	if err != nil {
