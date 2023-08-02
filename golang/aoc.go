@@ -14,7 +14,8 @@ import (
 
 func main() {
 	// day1()
-	day5()
+	// day5()
+	day6()
 }
 
 func day1() {
@@ -186,4 +187,38 @@ func day5() {
 
 	fmt.Printf("Part one: %v\n", topCrates)
 	fmt.Println("Nice.")
+}
+
+func day6() {
+	// find first four-character sequence where all characters are distinct
+	file, err := os.Open("../data/day6.txt")
+
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	reader := bufio.NewReader(file)
+
+	marker := make([]byte, 0)
+	for {
+		char, err := reader.ReadByte()
+
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+
+		// push to queue
+		marker = append(marker, char)
+
+		// once size is four, check for uniques
+		if len(marker) == 4 {
+			fmt.Println("length four")
+		}
+
+		// if success, break with answer
+
+		// if failure, dequeue and enqueue next byte and repeat
+	}
 }
