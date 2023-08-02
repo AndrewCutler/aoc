@@ -200,7 +200,8 @@ func day6() {
 
 	reader := bufio.NewReader(file)
 
-	marker := make([]byte, 0)
+	marker := make([]byte, 0, 4)
+	answer := 1
 	for {
 		char, err := reader.ReadByte()
 
@@ -213,12 +214,26 @@ func day6() {
 		marker = append(marker, char)
 
 		// once size is four, check for uniques
-		if len(marker) == 4 {
-			fmt.Println("length four")
-		}
-
 		// if success, break with answer
-
-		// if failure, dequeue and enqueue next byte and repeat
+		// if failure, dequeue
+		if len(marker) == 4 {
+			visited := make(map[byte]bool)
+			for i, curr := range marker {
+				if visited[curr] == true {
+					// we have a failure
+					fmt.Printf("Duplicate %v found in marker %v\n", curr, marker)
+					marker = marker[1:]
+					break
+				} else if i == 3 {
+					goto done
+				} else {
+					visited[curr] = true
+				}
+			}
+		}
+		answer++
 	}
+
+	done: 
+		fmt.Printf("Part one: %v\nPart Two: %v\n", answer, "not started")
 }
