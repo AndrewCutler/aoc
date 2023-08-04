@@ -1,0 +1,12 @@
+$ cd /
+$ ls
+dir dpbwg
+dir dvwfscw
+63532 mwvbpw.mmg
+239480 npj
+303649 shvgmwn.vhv
+236905 sjrrgd.phh
+$ cd dpbwg
+$ ls
+dir dgh
+100731 dpbwg

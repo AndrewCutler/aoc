@@ -238,6 +238,16 @@ done:
 	fmt.Printf("Solution: %v\n", answer)
 }
 
+// func getLines(reader *bufio.Reader) (string, error) {
+// 	nBytes, err := reader.ReadBytes('\n')
+
+// 	if err != nil {
+// 		return "", errors.New(err.Error())
+// 	}
+
+// 	return string(nBytes[:]), nil
+// }
+
 func day7() {
 	type Node struct {
 		size int
@@ -248,7 +258,7 @@ func day7() {
 	// if a directory's contents exceed 100,000, add to answer
 	answer := 0
 
-	file, err := os.Open("../data/day7.test.txt")
+	file, err := os.Open("../data/day7.test.2.txt")
 
 	if err != nil {
 		panic(err)
@@ -257,7 +267,11 @@ func day7() {
 	reader := bufio.NewReader(file)
 
 	// var root Node
+	lineNumber := 1
+	OUTER:
 	for {
+		fmt.Printf("Line number: %v ", lineNumber)
+		lineNumber++
 		lBytes, err := reader.ReadBytes('\n')
 
 		if err != nil {
@@ -266,6 +280,11 @@ func day7() {
 		}
 
 		lineOuter := string(lBytes[:])
+		// lineOuter, err := getLines(reader)
+
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		// is a command
 		if strings.HasPrefix(lineOuter, "$") {
@@ -276,20 +295,67 @@ func day7() {
 				}
 				fmt.Println(node)
 
-				nBytes, err := reader.ReadBytes('\n')
+				// nBytes, err := reader.ReadBytes('\n')
+
+				// if err != nil {
+				// 	fmt.Println(err)
+				// 	break
+				// }
+
+				// lineInner := string(nBytes[:])
+
+				// lineInner, err := getLines(reader)
 
 				if err != nil {
 					fmt.Println(err)
-					break
 				}
 
-				lineInner := string(nBytes[:])
+				// wordsInner := strings.Split(lineInner, " ")
 
-				wordsInner := strings.Split(lineInner, " ")
+				// if wordsInner[1] == "ls\r\n" {
+				// 	// fmt.Println("ls: ", wordsInner)
+				// 	for {
+				// 		fmt.Printf("Line number: %v ", lineNumber)
+				// 		lineNumber++
 
-				if wordsInner[1] == "ls\r\n" {
-					fmt.Println("ls: ", wordsInner)
+				// 		// read directory
+				// 		dBytes, err := reader.ReadBytes('\n')
+
+				// 		if err != nil {
+				// 			fmt.Println(err)
+				// 			break
+				// 		}
+
+				// 		directoryLines := string(dBytes[:])
+
+				// 		if strings.HasPrefix(directoryLines, "$") {
+				// 			continue OUTER
+				// 		} else {
+				// 			fmt.Println(directoryLines)
+				// 		}
+				// 	}
+				// }
+			} else if wordsOuter[1] == "ls\r\n" {
+				fmt.Println("ls")
+				for {
+					fmt.Printf("Line number: %v ", lineNumber)
+					lineNumber++
+
 					// read directory
+					dBytes, err := reader.ReadBytes('\n')
+
+					if err != nil {
+						fmt.Println(err)
+						break
+					}
+
+					directoryLines := string(dBytes[:])
+
+					if strings.HasPrefix(directoryLines, "$") {
+						continue OUTER
+					} else {
+						fmt.Println(directoryLines)
+					}
 				}
 			}
 		}
