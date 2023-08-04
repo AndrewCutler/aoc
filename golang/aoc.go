@@ -15,8 +15,9 @@ import (
 func main() {
 	// day1()
 	// day5()
-	day6(4) // part one
-	day6(14) // part two
+	// day6(4)  // part one
+	// day6(14) // part two
+	day7()
 }
 
 func day1() {
@@ -233,6 +234,76 @@ func day6(packetsize int) {
 		answer++
 	}
 
-	done: 
-		fmt.Printf("Solution: %v\n", answer)
+done:
+	fmt.Printf("Solution: %v\n", answer)
+}
+
+func day7() {
+	type Node struct {
+		size int
+		name string
+		// files here, as type with name and size
+		children []*Node
+	}
+	// if a directory's contents exceed 100,000, add to answer
+	answer := 0
+
+	file, err := os.Open("../data/day7.test.txt")
+
+	if err != nil {
+		panic(err)
+	}
+
+	reader := bufio.NewReader(file)
+
+	// var root Node
+	for {
+		lBytes, err := reader.ReadBytes('\n')
+
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+
+		lineOuter := string(lBytes[:])
+
+		// is a command
+		if strings.HasPrefix(lineOuter, "$") {
+			wordsOuter := strings.Split(lineOuter, " ")
+			if wordsOuter[1] == "cd" {
+				node := Node{
+					name: strings.Replace(wordsOuter[2], "\r\n", "", -1),
+				}
+				fmt.Println(node)
+
+				nBytes, err := reader.ReadBytes('\n')
+
+				if err != nil {
+					fmt.Println(err)
+					break
+				}
+
+				lineInner := string(nBytes[:])
+
+				wordsInner := strings.Split(lineInner, " ")
+
+				if wordsInner[1] == "ls\r\n" {
+					fmt.Println("ls: ", wordsInner)
+					// read directory
+				}
+			}
+		}
+		// 	} else if words[1] == "ls" {
+		// 		// get all files and directories
+		// 	}
+		// 	// is a directory
+		// } else if strings.HasPrefix(line, "dir") {
+		// 	fmt.Printf("Directory: %v\n", line)
+		// 	// is a file
+		// } else {
+		// 	fmt.Printf("File: %v\n", line)
+		// }
+	}
+
+	fmt.Printf("Part one: %v\n", answer)
 }
