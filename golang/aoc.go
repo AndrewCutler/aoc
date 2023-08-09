@@ -250,13 +250,14 @@ done:
 
 func day7() {
 	type Node struct {
-		size int
-		name string
-		// files here, as type with name and size
+		size     int
+		name     string
+		parent   *Node
 		children []*Node
+		// files File -- files here, as struct with name and size
 	}
 	// if a directory's contents exceed 100,000, add to answer
-	answer := 0
+	// answer := 0
 
 	file, err := os.Open("../data/day7.test.2.txt")
 
@@ -264,112 +265,62 @@ func day7() {
 		panic(err)
 	}
 
-	reader := bufio.NewReader(file)
+	scanner := bufio.NewScanner(file)
 
-	// var root Node
-	lineNumber := 1
-	OUTER:
-	for {
-		fmt.Printf("Line number: %v ", lineNumber)
-		lineNumber++
-		lBytes, err := reader.ReadBytes('\n')
-
-		if err != nil {
-			fmt.Println(err)
-			break
+	var prev Node
+	var curr Node
+OUTER:
+	for scanner.Scan() {
+		line := strings.ReplaceAll(scanner.Text(), "\r\n", "")
+		if strings.HasSuffix(line, "cd ..") {
+			// go back to parent
+			curr = *curr.parent
+			continue
 		}
+		if strings.HasPrefix(line, "$ cd") {
+			temp := curr
+			name := strings.Split(line, " ")[2]
 
-		lineOuter := string(lBytes[:])
-		// lineOuter, err := getLines(reader)
-
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		// is a command
-		if strings.HasPrefix(lineOuter, "$") {
-			wordsOuter := strings.Split(lineOuter, " ")
-			if wordsOuter[1] == "cd" {
-				node := Node{
-					name: strings.Replace(wordsOuter[2], "\r\n", "", -1),
-				}
-				fmt.Println(node)
-
-				// nBytes, err := reader.ReadBytes('\n')
-
-				// if err != nil {
-				// 	fmt.Println(err)
-				// 	break
-				// }
-
-				// lineInner := string(nBytes[:])
-
-				// lineInner, err := getLines(reader)
-
-				if err != nil {
-					fmt.Println(err)
-				}
-
-				// wordsInner := strings.Split(lineInner, " ")
-
-				// if wordsInner[1] == "ls\r\n" {
-				// 	// fmt.Println("ls: ", wordsInner)
-				// 	for {
-				// 		fmt.Printf("Line number: %v ", lineNumber)
-				// 		lineNumber++
-
-				// 		// read directory
-				// 		dBytes, err := reader.ReadBytes('\n')
-
-				// 		if err != nil {
-				// 			fmt.Println(err)
-				// 			break
-				// 		}
-
-				// 		directoryLines := string(dBytes[:])
-
-				// 		if strings.HasPrefix(directoryLines, "$") {
-				// 			continue OUTER
-				// 		} else {
-				// 			fmt.Println(directoryLines)
-				// 		}
-				// 	}
-				// }
-			} else if wordsOuter[1] == "ls\r\n" {
-				fmt.Println("ls")
-				for {
-					fmt.Printf("Line number: %v ", lineNumber)
-					lineNumber++
-
-					// read directory
-					dBytes, err := reader.ReadBytes('\n')
-
-					if err != nil {
-						fmt.Println(err)
-						break
-					}
-
-					directoryLines := string(dBytes[:])
-
-					if strings.HasPrefix(directoryLines, "$") {
-						continue OUTER
-					} else {
-						fmt.Println(directoryLines)
-					}
+			for _, child := range prev.children {
+				if child.name == name {
+					child.parent = &prev
+					prev = temp
+					curr = *child
+					continue OUTER
 				}
 			}
-		}
-		// 	} else if words[1] == "ls" {
-		// 		// get all files and directories
-		// 	}
-		// 	// is a directory
-		// } else if strings.HasPrefix(line, "dir") {
-		// 	fmt.Printf("Directory: %v\n", line)
-		// 	// is a file
-		// } else {
-		// 	fmt.Printf("File: %v\n", line)
-		// }
-	}
 
-	fmt.Printf("Part one: %v\n", answer)
+			curr = Node{
+				name: name,
+				children: make([]*Node, 0),
+			}
+
+			curr.parent = &temp
+			if prev.name != "" {
+				prev.children = append(prev.children, &curr)
+			}
+			prev = temp
+			continue
+		}
+		if strings.HasPrefix(line, "$ ls") {
+			continue
+		}
+		if strings.HasPrefix(line, "dir") {
+			dir := Node{
+				name: strings.Split(line, " ")[1],
+				parent: &curr,
+				children: make([]*Node, 0),
+			}
+			curr.children = append(curr.children, &dir)
+			continue
+		}
+
+		size, err := strconv.Atoi(strings.Split(line, " ")[0])
+
+		if err != nil {
+			panic(err)
+		}
+		curr.size += size
+	}
+	fmt.Println(curr)
 }

@@ -10,3 +10,7 @@ $ cd dpbwg
 $ ls
 dir dgh
 100731 dpbwg
+dir rpwnv
+$ cd dgh
+$ ls
+197049 lhjmzsl.hzj
