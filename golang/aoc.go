@@ -238,28 +238,31 @@ done:
 	fmt.Printf("Solution: %v\n", answer)
 }
 
-// func getLines(reader *bufio.Reader) (string, error) {
-// 	nBytes, err := reader.ReadBytes('\n')
+type Node struct {
+	size     int
+	name     string
+	parent   *Node
+	children []*Node
+	// files File -- files here, as struct with name and size
+}
 
-// 	if err != nil {
-// 		return "", errors.New(err.Error())
-// 	}
-
-// 	return string(nBytes[:]), nil
-// }
+func postorder_traverse(root *Node, sum *int) {
+	if root == nil || root.name == "" {
+		return
+	}
+	if *sum <= 100000 {
+		*sum += root.size
+	}
+	for _, child := range root.children {
+		postorder_traverse(child, sum)
+	}
+}
 
 func day7() {
-	type Node struct {
-		size     int
-		name     string
-		parent   *Node
-		children []*Node
-		// files File -- files here, as struct with name and size
-	}
 	// if a directory's contents exceed 100,000, add to answer
-	// answer := 0
+	sum := 0
 
-	file, err := os.Open("../data/day7.test.2.txt")
+	file, err := os.Open("../data/day7.txt")
 
 	if err != nil {
 		panic(err)
@@ -291,7 +294,7 @@ OUTER:
 			}
 
 			curr = Node{
-				name: name,
+				name:     name,
 				children: make([]*Node, 0),
 			}
 
@@ -307,8 +310,8 @@ OUTER:
 		}
 		if strings.HasPrefix(line, "dir") {
 			dir := Node{
-				name: strings.Split(line, " ")[1],
-				parent: &curr,
+				name:     strings.Split(line, " ")[1],
+				parent:   &curr,
 				children: make([]*Node, 0),
 			}
 			curr.children = append(curr.children, &dir)
@@ -322,5 +325,17 @@ OUTER:
 		}
 		curr.size += size
 	}
-	fmt.Println(curr)
+
+	// return to root
+	for {
+		if curr.parent.name == "" {
+			break
+		}
+		curr = *curr.parent
+	}
+
+	// now sum all directory sizes <= 100000
+	postorder_traverse(&curr, &sum)
+
+	fmt.Printf("Part one: %v\n", sum)
 }
