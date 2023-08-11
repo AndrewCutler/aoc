@@ -2,10 +2,17 @@ $ cd /
 $ ls
 dir dpbwg
 dir dvwfscw
+dir hccpl
+dir jsgbg
+dir lhjmzsl
 63532 mwvbpw.mmg
 239480 npj
+dir pngs
+dir qhs
 303649 shvgmwn.vhv
 236905 sjrrgd.phh
+dir sntcp
+dir sqs
 $ cd dpbwg
 $ ls
 dir dgh
@@ -22,6 +29,34 @@ $ cd ..
 $ cd ..
 $ cd dvwfscw
 $ ls
+dir bvg
+dir dir1
 115450 gjftb.mgd
+dir gsmnprgz
+dir hdwdcvv
+dir mhjtrlqz
 75437 qsctddrw
 171722 qsgv.zqz
+$ cd bvg
+$ ls
+56335 cgtzb.szt
+139481 shvgmwn.vhv
+255200 wzqlgr.mhl
+$ cd ..
+$ cd dir1
+$ ls
+252977 hmcj
+256083 mbgfn.pmh
+dir dir2
+dir dir3
+$ cd dir2
+$ ls
+271506 dchsdfz.bbg
+202650 hmcj
+32623 lqgmfcp
+57614 mgp.fbn
+220895 qwzqrrq.wjf
+$ cd ..
+$ cd dir3
+$ ls
+12345 smallfile
