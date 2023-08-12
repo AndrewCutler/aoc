@@ -248,7 +248,7 @@ type Node struct {
 }
 
 func traverse(root *Node, sum *int) {
-	if root == nil || root.name == "" || root.visited == true {
+	if root == nil || root.visited == true {
 		return
 	}
 	root.visited = true
@@ -258,13 +258,21 @@ func traverse(root *Node, sum *int) {
 	for _, child := range root.children {
 		traverse(child, sum)
 	}
-	if root.parent.name != "" {
+	if root.parent != nil {
 		traverse(root.parent, sum)
 	}
 }
 
-func get_sums() {
+func get_sizes(root *Node) int {
+	if len(root.children) == 0 {
+		return root.size
+	}
 
+	for _, child := range root.children {
+		root.size += get_sizes(child)
+	}
+
+	return root.size
 }
 
 func day7() {
@@ -280,11 +288,8 @@ func day7() {
 	scanner := bufio.NewScanner(file)
 
 	var curr *Node
-	i := 1
 OUTER:
 	for scanner.Scan() {
-		i++
-
 		line := strings.ReplaceAll(scanner.Text(), "\r\n", "")
 
 		if strings.HasPrefix(line, "$ ls") || strings.HasPrefix(line, "dir") {
@@ -307,7 +312,6 @@ OUTER:
 				continue
 			}
 
-			temp := *curr
 			for _, child := range curr.children {
 				if child.name == name {
 					child.parent = curr
@@ -316,16 +320,37 @@ OUTER:
 				}
 			}
 
-			*curr = Node{
+			node := Node{
 				name:     name,
 				children: make([]*Node, 0),
 				visited:  false,
+				parent: curr,
 			}
 
-			curr.parent = &temp
-			if temp.name != "" {
-				temp.children = append(temp.children, curr)
+			if curr != nil {
+				curr.children = append(curr.children, &node)
 			}
+
+			curr = &node
+			// temp := *curr
+			// for _, child := range curr.children {
+			// 	if child.name == name {
+			// 		child.parent = curr
+			// 		curr = child
+			// 		continue OUTER
+			// 	}
+			// }
+
+			// *curr = Node{
+			// 	name:     name,
+			// 	children: make([]*Node, 0),
+			// 	visited:  false,
+			// 	parent: &temp,
+			// }
+
+			// if &temp != nil {
+			// 	temp.children = append(temp.children, curr)
+			// }
 			continue
 		}
 
@@ -339,15 +364,16 @@ OUTER:
 
 	// return to root
 	for {
-		fmt.Println(curr.name)
 		if curr.parent == nil {
 			break
 		}
 		curr = curr.parent
 	}
 
+	get_sizes(curr)
+
 	// now sum all directory sizes <= 100000
-	// traverse(curr, &sum)
+	traverse(curr, &sum)
 
 	fmt.Printf("Part one: %v\n", sum)
 }

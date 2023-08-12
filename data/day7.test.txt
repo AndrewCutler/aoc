@@ -1,7 +1,7 @@
-$ cd /
+$ cd root
 $ ls
-dir dpbwg
-dir dvwfscw
+dir 1_1
+dir 1_2
 dir hccpl
 dir jsgbg
 dir lhjmzsl
@@ -13,50 +13,15 @@ dir qhs
 236905 sjrrgd.phh
 dir sntcp
 dir sqs
-$ cd dpbwg
+$ cd 1_1
 $ ls
-dir dgh
-100731 dpbwg
-dir rpwnv
-$ cd dgh
+dir 2_1
+100731 1_1
+dir 2_2
+$ cd 2_1
 $ ls
 197049 lhjmzsl.hzj
 $ cd ..
-$ cd rpwnv
+$ cd 2_2
 $ ls
 10702 qsgv.fmf
-$ cd ..
-$ cd ..
-$ cd dvwfscw
-$ ls
-dir bvg
-dir dir1
-115450 gjftb.mgd
-dir gsmnprgz
-dir hdwdcvv
-dir mhjtrlqz
-75437 qsctddrw
-171722 qsgv.zqz
-$ cd bvg
-$ ls
-56335 cgtzb.szt
-139481 shvgmwn.vhv
-255200 wzqlgr.mhl
-$ cd ..
-$ cd dir1
-$ ls
-252977 hmcj
-256083 mbgfn.pmh
-dir dir2
-dir dir3
-$ cd dir2
-$ ls
-271506 dchsdfz.bbg
-202650 hmcj
-32623 lqgmfcp
-57614 mgp.fbn
-220895 qwzqrrq.wjf
-$ cd ..
-$ cd dir3
-$ ls
-12345 smallfile
