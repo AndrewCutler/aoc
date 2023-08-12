@@ -241,21 +241,38 @@ done:
 type Node struct {
 	size     int
 	name     string
+	visited  bool
 	parent   *Node
 	children []*Node
 	// files File -- files here, as struct with name and size
 }
 
-func postorder_traverse(root *Node, sum *int) {
-	if root == nil || root.name == "" {
+func traverse(root *Node, sum *int) {
+	if root == nil || root.visited == true {
 		return
 	}
-	if *sum <= 100000 {
+	root.visited = true
+	if root.size <= 100000 {
 		*sum += root.size
 	}
 	for _, child := range root.children {
-		postorder_traverse(child, sum)
+		traverse(child, sum)
 	}
+	if root.parent != nil {
+		traverse(root.parent, sum)
+	}
+}
+
+func get_sizes(root *Node) int {
+	if len(root.children) == 0 {
+		return root.size
+	}
+
+	for _, child := range root.children {
+		root.size += get_sizes(child)
+	}
+
+	return root.size
 }
 
 func day7() {
@@ -270,51 +287,70 @@ func day7() {
 
 	scanner := bufio.NewScanner(file)
 
-	var prev Node
-	var curr Node
+	var curr *Node
 OUTER:
 	for scanner.Scan() {
 		line := strings.ReplaceAll(scanner.Text(), "\r\n", "")
+
+		if strings.HasPrefix(line, "$ ls") || strings.HasPrefix(line, "dir") {
+			continue
+		}
 		if strings.HasSuffix(line, "cd ..") {
-			// go back to parent
-			curr = *curr.parent
+			curr = curr.parent
 			continue
 		}
 		if strings.HasPrefix(line, "$ cd") {
-			temp := curr
 			name := strings.Split(line, " ")[2]
 
-			for _, child := range prev.children {
+			if curr == nil {
+				node := Node{
+					name:     name,
+					children: make([]*Node, 0),
+					visited:  false,
+				}
+				curr = &node
+				continue
+			}
+
+			for _, child := range curr.children {
 				if child.name == name {
-					child.parent = &prev
-					prev = temp
-					curr = *child
+					child.parent = curr
+					curr = child
 					continue OUTER
 				}
 			}
 
-			curr = Node{
+			node := Node{
 				name:     name,
 				children: make([]*Node, 0),
+				visited:  false,
+				parent: curr,
 			}
 
-			curr.parent = &temp
-			if prev.name != "" {
-				prev.children = append(prev.children, &curr)
+			if curr != nil {
+				curr.children = append(curr.children, &node)
 			}
-			prev = temp
-			continue
-		}
-		if strings.HasPrefix(line, "$ ls") {
-			continue
-		}
-		if strings.HasPrefix(line, "dir") {
-			dir := Node{
-				name:     strings.Split(line, " ")[1],
-				parent:   &curr,
-				children: make([]*Node, 0),
-			}
-			curr.children = append(curr.children, &dir)
+
+			curr = &node
+			// temp := *curr
+			// for _, child := range curr.children {
+			// 	if child.name == name {
+			// 		child.parent = curr
+			// 		curr = child
+			// 		continue OUTER
+			// 	}
+			// }
+
+			// *curr = Node{
+			// 	name:     name,
+			// 	children: make([]*Node, 0),
+			// 	visited:  false,
+			// 	parent: &temp,
+			// }
+
+			// if &temp != nil {
+			// 	temp.children = append(temp.children, curr)
+			// }
 			continue
 		}
 
@@ -328,14 +364,16 @@ OUTER:
 
 	// return to root
 	for {
-		if curr.parent.name == "" {
+		if curr.parent == nil {
 			break
 		}
-		curr = *curr.parent
+		curr = curr.parent
 	}
 
+	get_sizes(curr)
+
 	// now sum all directory sizes <= 100000
-	postorder_traverse(&curr, &sum)
+	traverse(curr, &sum)
 
 	fmt.Printf("Part one: %v\n", sum)
 }
