@@ -247,7 +247,7 @@ type Node struct {
 	// files File -- files here, as struct with name and size
 }
 
-func traverse(root *Node, sum *int) {
+func get_sum(root *Node, sum *int) {
 	if root == nil || root.visited == true {
 		return
 	}
@@ -256,28 +256,48 @@ func traverse(root *Node, sum *int) {
 		*sum += root.size
 	}
 	for _, child := range root.children {
-		traverse(child, sum)
+		get_sum(child, sum)
 	}
 	if root.parent != nil {
-		traverse(root.parent, sum)
+		get_sum(root.parent, sum)
 	}
 }
 
-func get_sizes(root *Node) int {
+func get_size(root *Node) int {
 	if len(root.children) == 0 {
 		return root.size
 	}
 
 	for _, child := range root.children {
-		root.size += get_sizes(child)
+		root.size += get_size(child)
 	}
 
 	return root.size
 }
 
+func find_closest(root *Node,  unused_space int, min int) int {
+	if root == nil {
+		return min
+	}
+
+	if root.size > 30_000_000-unused_space {
+		if min == 0 || root.size < min {
+			min = root.size
+		}
+	}
+	for _, child := range root.children {
+		min = find_closest(child, unused_space, min)
+	} 
+
+	// this will print the correct answer eventually,
+	// but why isn't min the answer at the end?
+	fmt.Println(min)
+	return min
+}
+
 func day7() {
 	// if a directory's contents exceed 100,000, add to answer
-	sum := 0
+	part_one := 0
 
 	file, err := os.Open("../data/day7.txt")
 
@@ -324,7 +344,7 @@ OUTER:
 				name:     name,
 				children: make([]*Node, 0),
 				visited:  false,
-				parent: curr,
+				parent:   curr,
 			}
 
 			if curr != nil {
@@ -332,25 +352,6 @@ OUTER:
 			}
 
 			curr = &node
-			// temp := *curr
-			// for _, child := range curr.children {
-			// 	if child.name == name {
-			// 		child.parent = curr
-			// 		curr = child
-			// 		continue OUTER
-			// 	}
-			// }
-
-			// *curr = Node{
-			// 	name:     name,
-			// 	children: make([]*Node, 0),
-			// 	visited:  false,
-			// 	parent: &temp,
-			// }
-
-			// if &temp != nil {
-			// 	temp.children = append(temp.children, curr)
-			// }
 			continue
 		}
 
@@ -370,10 +371,18 @@ OUTER:
 		curr = curr.parent
 	}
 
-	get_sizes(curr)
+	get_size(curr)
 
 	// now sum all directory sizes <= 100000
-	traverse(curr, &sum)
+	get_sum(curr, &part_one)
 
-	fmt.Printf("Part one: %v\n", sum)
+	// find directory where 70_000_000 - directory_size > 30_000_000
+	// but as close to 30_000_000 as possible
+
+	unused_space := 70_000_000 - curr.size
+	part_two := 0
+	find_closest(curr, unused_space, part_two)
+
+	fmt.Printf("Part one: %v\n", part_one)
+	fmt.Printf("Part two: %v\n", part_two)
 }
