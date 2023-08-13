@@ -1,6 +1,7 @@
 package main
 
 import (
+	days "aoc/days"
 	"bufio"
 	"fmt"
 	"io"
@@ -13,11 +14,19 @@ import (
 )
 
 func main() {
+	switch day := os.Args[1]; day {
+	case "day1":
+		{
+			days.DayOne()
+		}
+	default:
+		panic("Invalid day specified.")
+	}
 	// day1()
 	// day5()
 	// day6(4)  // part one
 	// day6(14) // part two
-	day7()
+	// day7()
 }
 
 func day1() {
@@ -275,7 +284,7 @@ func get_size(root *Node) int {
 	return root.size
 }
 
-func find_closest(root *Node,  unused_space int, min int) int {
+func find_closest(root *Node, unused_space int, min int) int {
 	if root == nil {
 		return min
 	}
@@ -287,7 +296,7 @@ func find_closest(root *Node,  unused_space int, min int) int {
 	}
 	for _, child := range root.children {
 		min = find_closest(child, unused_space, min)
-	} 
+	}
 
 	// this will print the correct answer eventually,
 	// but why isn't min the answer at the end?
