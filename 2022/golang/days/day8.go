@@ -35,7 +35,7 @@ func DayEight() {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	
+
 	num_of_rows := 0
 	var num_of_cols int
 	for scanner.Scan() {
@@ -43,12 +43,12 @@ func DayEight() {
 		num_of_cols = len(line)
 		num_of_rows++
 	}
-	
-	forest := make([][]byte, num_of_cols)
+
+	forest := make([][]Square, num_of_cols)
 	for i := range forest {
-		forest[i] = make([]byte, num_of_rows)
+		forest[i] = make([]Square, num_of_rows)
 	}
-	
+
 	file.Seek(0, io.SeekStart)
 
 	scanner = bufio.NewScanner(file)
@@ -59,7 +59,23 @@ func DayEight() {
 		line := scanner.Bytes()
 
 		for i, b := range line {
-			forest[line_num][i] = b - byte(zero_byte_offset)
+			tree := new(Square)
+			if line_num != 0 {
+				tree.top = &forest[line_num-1][i]
+			}
+			if line_num != num_of_rows-1 { // todo: verify -1 is correct
+				tree.bottom = &forest[line_num+1][i]
+			}
+			if i != 0 {
+				tree.left = &forest[line_num][i-1]
+			}
+			if i != num_of_cols-1 { // todo: verify -1 is correct
+				tree.right = &forest[line_num][i+1]
+			}
+
+			tree.tree_height = int(b) - zero_byte_offset
+
+			forest[line_num][i] = *tree
 		}
 
 		line_num++
