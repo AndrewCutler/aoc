@@ -44,9 +44,9 @@ func DayEight() {
 		num_of_rows++
 	}
 
-	forest := make([][]Square, num_of_cols)
-	for i := range forest {
-		forest[i] = make([]Square, num_of_rows)
+	grid := make([][]Square, num_of_cols)
+	for i := range grid {
+		grid[i] = make([]Square, num_of_rows)
 	}
 
 	file.Seek(0, io.SeekStart)
@@ -59,27 +59,27 @@ func DayEight() {
 		line := scanner.Bytes()
 
 		for i, b := range line {
-			tree := new(Square)
+			curr := new(Square)
 			if line_num != 0 {
-				tree.top = &forest[line_num-1][i]
+				curr.top = &grid[line_num-1][i]
 			}
 			if line_num != num_of_rows-1 { // todo: verify -1 is correct
-				tree.bottom = &forest[line_num+1][i]
+				curr.bottom = &grid[line_num+1][i]
 			}
 			if i != 0 {
-				tree.left = &forest[line_num][i-1]
+				curr.left = &grid[line_num][i-1]
 			}
 			if i != num_of_cols-1 { // todo: verify -1 is correct
-				tree.right = &forest[line_num][i+1]
+				curr.right = &grid[line_num][i+1]
 			}
 
-			tree.tree_height = int(b) - zero_byte_offset
+			curr.tree_height = int(b) - zero_byte_offset
 
-			forest[line_num][i] = *tree
+			grid[line_num][i] = *curr
 		}
 
 		line_num++
 	}
 
-	fmt.Println(forest)
+	fmt.Println(grid)
 }
