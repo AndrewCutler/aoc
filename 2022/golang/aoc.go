@@ -32,6 +32,10 @@ func main() {
 		{
 			days.DaySeven()
 		}
+	case "8":
+		{
+			days.DayEight()
+		}
 	default:
 		panic("Invalid day specified. Valid options are: 1, 5, 6.1, 6.2, 7.")
 	}
