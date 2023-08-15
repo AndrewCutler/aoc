@@ -8,12 +8,12 @@ import (
 )
 
 type Square struct {
-	top         *Square
-	right       *Square
-	bottom      *Square
-	left        *Square
-	visited     bool
-	tree_height int
+	top     *Square
+	right   *Square
+	bottom  *Square
+	left    *Square
+	visited bool
+	height  int
 }
 
 // 2D array of row, col
@@ -27,7 +27,7 @@ type Square struct {
 // read every byte into 2D array
 
 func DayEight() {
-	file, err := os.Open("../data/day8.txt")
+	file, err := os.Open("../data/day8.test.txt")
 
 	if err != nil {
 		panic(err)
@@ -44,9 +44,9 @@ func DayEight() {
 		num_of_rows++
 	}
 
-	grid := make([][]Square, num_of_cols)
+	grid := make([][]*Square, num_of_cols)
 	for i := range grid {
-		grid[i] = make([]Square, num_of_rows)
+		grid[i] = make([]*Square, num_of_rows)
 	}
 
 	file.Seek(0, io.SeekStart)
@@ -61,25 +61,40 @@ func DayEight() {
 		for i, b := range line {
 			curr := new(Square)
 			if line_num != 0 {
-				curr.top = &grid[line_num-1][i]
+				curr.top = grid[line_num-1][i]
 			}
-			if line_num != num_of_rows-1 { // todo: verify -1 is correct
-				curr.bottom = &grid[line_num+1][i]
+			if line_num != num_of_rows-1 {
+				curr.bottom = grid[line_num+1][i]
 			}
 			if i != 0 {
-				curr.left = &grid[line_num][i-1]
+				curr.left = grid[line_num][i-1]
 			}
-			if i != num_of_cols-1 { // todo: verify -1 is correct
-				curr.right = &grid[line_num][i+1]
+			if i != num_of_cols-1 {
+				curr.right = grid[line_num][i+1]
 			}
 
-			curr.tree_height = int(b) - zero_byte_offset
+			curr.height = int(b) - zero_byte_offset
 
-			grid[line_num][i] = *curr
+			grid[line_num][i] = curr
 		}
 
 		line_num++
 	}
 
-	fmt.Println(grid)
+	// visibles := make([]*Square, 0)
+	for i, row := range grid {
+		if i < 2 {
+			// fmt.Println(row)
+			for j, _ := range row {
+				curr := *grid[i][j]
+				fmt.Println(curr)
+				fmt.Println(*grid[i][j])
+				// fmt.Println(col)
+				// go up, right, down, left
+				// and if you reach nil without encountering
+				// any squares with >= height,
+				// add to visibles
+			}
+		}
+	}
 }
