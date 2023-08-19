@@ -8,14 +8,15 @@ import (
 )
 
 type Square struct {
-	top     *Square
-	right   *Square
-	bottom  *Square
-	left    *Square
-	visited bool
-	height  int
-	visible bool
-	id      string
+	top          *Square
+	right        *Square
+	bottom       *Square
+	left         *Square
+	visited      bool
+	height       int
+	scenic_score int
+	visible      bool
+	id           string
 }
 
 // 2D array of row, col
@@ -89,73 +90,87 @@ func DayEight() {
 		}
 	}
 
-	// calculate visibility for each square
 	for row_num := range grid {
-	NEXT_SQUARE:
 		for _, square := range grid[row_num] {
-			// go up, right, down, left
-			// and if you reach nil without encountering
-			// any squares with >= height,
-			// visible = true
+			visible := false
 			curr := square
+			top_score := 0
 			for {
 				if curr.top == nil {
-					square.visible = true
-					continue NEXT_SQUARE
+					visible = true
+					break
 				}
 				if square.height <= curr.top.height {
-					square.visible = false
+					top_score++
 					break
 				}
 				curr = curr.top
+				top_score++
 			}
+
 			curr = square
+			right_score := 0
 			for {
 				if curr.right == nil {
-					square.visible = true
-					continue NEXT_SQUARE
+					visible = true
+					break
 				}
 				if square.height <= curr.right.height {
-					square.visible = false
+					right_score++
 					break
 				}
 				curr = curr.right
+				right_score++
 			}
+
 			curr = square
+			bottom_score := 0
 			for {
 				if curr.bottom == nil {
-					square.visible = true
-					continue NEXT_SQUARE
+					visible = true
+					break
 				}
 				if square.height <= curr.bottom.height {
-					square.visible = false
+					bottom_score++
 					break
 				}
 				curr = curr.bottom
+				bottom_score++
 			}
+
 			curr = square
+			left_score := 0
 			for {
 				if curr.left == nil {
-					square.visible = true
-					continue NEXT_SQUARE
+					visible = true
+					break
 				}
 				if square.height <= curr.left.height {
-					square.visible = false
+					left_score++
 					break
 				}
 				curr = curr.left
+				left_score++
 			}
+
+			square.scenic_score = top_score * right_score * bottom_score * left_score
+			square.visible = visible
 		}
 	}
 
 	visibles := make([]*Square, 0)
+	var most_scenic *Square
 	for _, row := range grid {
 		for _, square := range row {
 			if square.visible {
 				visibles = append(visibles, square)
 			}
+			if most_scenic == nil || most_scenic.scenic_score < square.scenic_score {
+				most_scenic = square
+			}
 		}
 	}
 
 	fmt.Println("Part one:", len(visibles))
+	fmt.Println("Part two:", most_scenic.scenic_score)
 }
