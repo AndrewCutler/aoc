@@ -2,6 +2,7 @@ package days
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 )
@@ -13,6 +14,7 @@ type Square struct {
 	left    *Square
 	visited bool
 	height  int
+	visible bool
 	id      string
 }
 
@@ -27,7 +29,7 @@ type Square struct {
 // read every byte into 2D array
 
 func DayEight() {
-	file, err := os.Open("../data/day8.test.txt")
+	file, err := os.Open("../data/day8.txt")
 
 	if err != nil {
 		panic(err)
@@ -60,10 +62,6 @@ func DayEight() {
 		// first, allocate squares
 		for i, b := range line {
 			curr := Square{
-				top:     &Square{},
-				right:   &Square{},
-				bottom:  &Square{},
-				left:    &Square{},
 				visited: false,
 				height:  int(b) - zero_byte_offset,
 				id:      string(line_num) + string(i),
@@ -71,42 +69,11 @@ func DayEight() {
 
 			grid[line_num][i] = &curr
 		}
-
-		// for i, b := range line {
-		// 	curr := grid[line_num][i]
-		// 	// why does only top seem to work?
-		// 	if line_num != 0 {
-		// 		fmt.Printf("top before: %v\n", curr.top)
-		// 		curr.top = grid[line_num-1][i]
-		// 		fmt.Printf("top after: %v\n", curr.top)
-		// 	}
-		// 	if line_num != num_of_rows-1 {
-		// 		fmt.Printf("bottom before: %v\n", curr.bottom)
-		// 		fmt.Printf("bottom square: %v\n", grid[line_num+1][i])
-		// 		curr.bottom = grid[line_num+1][i]
-		// 		fmt.Printf("bottom after: %v\n", curr.bottom)
-		// 	}
-		// 	if i != 0 {
-		// 		fmt.Printf("left before: %v\n", curr.right)
-		// 		curr.left = grid[line_num][i-1]
-		// 		fmt.Printf("left after: %v\n", curr.right)
-		// 	}
-		// 	if i != num_of_cols-1 {
-		// 		fmt.Printf("right before: %v\n", curr.right)
-		// 		curr.right = grid[line_num][i+1]
-		// 		fmt.Printf("right after: %v\n", curr.right)
-		// 	}
-
-		// 	curr.height = int(b) - zero_byte_offset
-
-		// 	// grid[line_num][i] = curr
-		// }
 	}
 
 	for row, _ := range grid {
 		for col, _ := range grid[row] {
 			curr := grid[row][col]
-			// why does only top seem to work?
 			if row != 0 {
 				curr.top = grid[row-1][col]
 			}
@@ -122,30 +89,73 @@ func DayEight() {
 		}
 	}
 
-	// visibles := make([]*Square, 0)
-	for i, row := range grid {
-		if i < 2 {
-			// fmt.Println(row)
-			for _, square := range row {
-				// go up, right, down, left
-				// and if you reach nil without encountering
-				// any squares with >= height,
-				// add to visibles
-				temp := square
-
-				// let's go right first
-				curr := square
-				for {
-					// curr.visited = true
-					// fmt.Println(curr)
-					if curr.right == nil {
-						// fmt.Printf("rightmost: %v\n", curr)
-						curr = temp
-						break
-					}
-					curr = curr.right
+	// calculate visibility for each square
+	for row_num := range grid {
+	NEXT_SQUARE:
+		for _, square := range grid[row_num] {
+			// go up, right, down, left
+			// and if you reach nil without encountering
+			// any squares with >= height,
+			// visible = true
+			curr := square
+			for {
+				if curr.top == nil {
+					square.visible = true
+					continue NEXT_SQUARE
 				}
+				if square.height <= curr.top.height {
+					square.visible = false
+					break
+				}
+				curr = curr.top
+			}
+			curr = square
+			for {
+				if curr.right == nil {
+					square.visible = true
+					continue NEXT_SQUARE
+				}
+				if square.height <= curr.right.height {
+					square.visible = false
+					break
+				}
+				curr = curr.right
+			}
+			curr = square
+			for {
+				if curr.bottom == nil {
+					square.visible = true
+					continue NEXT_SQUARE
+				}
+				if square.height <= curr.bottom.height {
+					square.visible = false
+					break
+				}
+				curr = curr.bottom
+			}
+			curr = square
+			for {
+				if curr.left == nil {
+					square.visible = true
+					continue NEXT_SQUARE
+				}
+				if square.height <= curr.left.height {
+					square.visible = false
+					break
+				}
+				curr = curr.left
 			}
 		}
 	}
+
+	visibles := make([]*Square, 0)
+	for _, row := range grid {
+		for _, square := range row {
+			if square.visible {
+				visibles = append(visibles, square)
+			}
+		}
+	}
+
+	fmt.Println("Part one:", len(visibles))
 }
