@@ -27,6 +27,20 @@ func check_target_cycles(cycle int, register_value int, sum *int) {
 	}
 }
 
+func draw(register_value int, x_position *int, screen *string) {
+	if register_value == *x_position || register_value-1 == *x_position || register_value+1 == *x_position {
+		*screen += "# "
+	} else {
+		*screen += ". "
+	}
+
+	*x_position++
+	if *x_position == 40 {
+		*screen += "\n"
+		*x_position = 0
+	}
+}
+
 func DayTen() {
 	file, err := os.Open("../data/day10.txt")
 
@@ -40,23 +54,11 @@ func DayTen() {
 	signal_strengths_sum := 0
 	screen := ""
 	x_position := 0
+	
 	for cycle := 1; scanner.Scan(); cycle++ {
 		command := scanner.Text()
 
-		// if register_value +/- 1 == x_position, draw #
-		// otherwise, draw .
-		// and go to a newline (setting x_position = 0) every 40 cycles
-		if register_value == x_position || register_value-1 == x_position || register_value+1 == x_position {
-			screen += "# "
-		} else {
-			screen += ". "
-		}
-		x_position++
-		if x_position == 40 {
-			screen += "\n"
-			x_position = 0
-		}
-
+		draw(register_value, &x_position, &screen)
 		check_target_cycles(cycle, register_value, &signal_strengths_sum)
 
 		if command == "noop" {
@@ -67,26 +69,14 @@ func DayTen() {
 			err := fmt.Sprintf("Invalid command: %v\n", command)
 			panic(err)
 		}
-
 		value, err := strconv.Atoi(strings.Split(command, " ")[1])
-
 		if err != nil {
 			panic(err)
 		}
 
 		cycle++
 
-		if register_value == x_position || register_value-1 == x_position || register_value+1 == x_position {
-			screen += "# "
-		} else {
-			screen += ". "
-		}
-		x_position++
-		if x_position == 40 {
-			screen += "\n"
-			x_position = 0
-		}
-
+		draw(register_value, &x_position, &screen)
 		check_target_cycles(cycle, register_value, &signal_strengths_sum)
 
 		register_value += value
