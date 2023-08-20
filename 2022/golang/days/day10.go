@@ -8,10 +8,18 @@ import (
 	"strings"
 )
 
+func check_target_cycles(cycle int,register_value int, sum *int) {
+	for _, c := range []int{20, 60, 100, 140,180,220} {
+		if cycle == c {
+			signal_strength := cycle * register_value
+			*sum += signal_strength
+		}
+	}
+}
+
 // Find signal strength at cycles 20, 60, 100, 140, 180 and 220.
 // Signal strength = cycle # * current value in register
 func DayTen() {
-	target_cycles := []int{20, 60, 100, 140,180,220}
 	file, err := os.Open("../data/day10.txt")
 
 	if err != nil {
@@ -25,12 +33,7 @@ func DayTen() {
 	for cycle := 1; scanner.Scan(); cycle++ {
 		command := scanner.Text()
 
-		for _, c := range target_cycles {
-			if cycle == c {
-				signal_strength := cycle * register_value
-				signal_strengths_sum += signal_strength
-			}
-		}
+		check_target_cycles(cycle, register_value, &signal_strengths_sum)
 
 		if command == "noop" {
 			continue
@@ -47,12 +50,7 @@ func DayTen() {
 		}
 
 		cycle++
-		for _, c := range target_cycles {
-			if cycle == c {
-				signal_strength := cycle * register_value
-				signal_strengths_sum += signal_strength
-			}
-		}
+		check_target_cycles(cycle, register_value, &signal_strengths_sum)
 
 		register_value += value
 	}
