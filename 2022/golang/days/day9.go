@@ -14,7 +14,7 @@ type Point struct {
 }
 
 func DayNine() {
-	file, err := os.Open("../data/day9.test.txt")
+	file, err := os.Open("../data/day9.txt")
 
 	if err != nil {
 		panic(err)
@@ -40,8 +40,8 @@ func DayNine() {
 			{
 				for ; distance > 0; distance-- {
 					head.x++
-					tail.y = head.y
 					if head.x-tail.x > 1 {
+						tail.y = head.y
 						tail.x++
 						visited_points[tail] = true
 					}
@@ -49,11 +49,10 @@ func DayNine() {
 			}
 		case "U":
 			{
-				fmt.Printf("Up: %v\n", distance)
 				for ; distance > 0; distance-- {
 					head.y++
-					tail.x = head.x
 					if head.y-tail.y > 1 {
+						tail.x = head.x
 						tail.y++
 						visited_points[tail] = true
 					}
@@ -63,8 +62,8 @@ func DayNine() {
 			{
 				for ; distance > 0; distance-- {
 					head.x--
-					tail.y = head.y
-					if head.x-tail.x < 1 {
+					if tail.x-head.x > 1 {
+						tail.y = head.y
 						tail.x--
 						visited_points[tail] = true
 					}
@@ -75,8 +74,8 @@ func DayNine() {
 				fmt.Printf("Up: %v\n", distance)
 				for ; distance > 0; distance-- {
 					head.y--
-					tail.x = head.x
-					if head.y-tail.y < 1 {
+					if tail.y-head.y > 1 {
+						tail.x = head.x
 						tail.y--
 						visited_points[tail] = true
 					}
@@ -87,30 +86,6 @@ func DayNine() {
 				panic("Invalid direction")
 			}
 		}
-	}
-
-	cols := 0
-	rows := 0
-	for key := range visited_points {
-		if rows < key.x {
-			rows = key.x + 1
-		}
-		if cols < key.y {
-			cols = key.y + 1
-		}
-	}
-
-	for i := rows; i > 0; i-- {
-		line := ""
-		for j := cols; j > 0; j-- {
-			curr := Point{x: i, y: j}
-			if visited_points[curr] {
-				line += "#"
-			} else {
-				line += "*"
-			}
-		}
-		fmt.Println(line)
 	}
 
 	fmt.Println(len(visited_points))
