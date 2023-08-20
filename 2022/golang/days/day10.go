@@ -8,17 +8,25 @@ import (
 	"strings"
 )
 
-func check_target_cycles(cycle int, register_value int, sum *int) {
-	for _, curr := range []int{20, 60, 100, 140, 180, 220} {
+var target_cycles = []int{20, 60, 100, 140, 180, 220}
+
+func is_target_cycle(cycle int) bool {
+	for _, curr := range target_cycles {
 		if cycle == curr {
-			signal_strength := cycle * register_value
-			*sum += signal_strength
+			return true
 		}
+	}
+
+	return false
+}
+
+func check_target_cycles(cycle int, register_value int, sum *int) {
+	if is_target_cycle(cycle) {
+		signal_strength := cycle * register_value
+		*sum += signal_strength
 	}
 }
 
-// Find signal strength at cycles 20, 60, 100, 140, 180 and 220.
-// Signal strength = cycle # * current value in register
 func DayTen() {
 	file, err := os.Open("../data/day10.txt")
 
@@ -30,14 +38,31 @@ func DayTen() {
 
 	register_value := 1
 	signal_strengths_sum := 0
+	screen := ""
+	x_position := 0
 	for cycle := 1; scanner.Scan(); cycle++ {
 		command := scanner.Text()
+
+		// if register_value +/- 1 == x_position, draw #
+		// otherwise, draw .
+		// and go to a newline (setting x_position = 0) every 40 cycles
+		if register_value == x_position || register_value-1 == x_position || register_value+1 == x_position {
+			screen += "# "
+		} else {
+			screen += ". "
+		}
+		x_position++
+		if x_position == 40 {
+			screen += "\n"
+			x_position = 0
+		}
 
 		check_target_cycles(cycle, register_value, &signal_strengths_sum)
 
 		if command == "noop" {
 			continue
 		}
+
 		if !strings.HasPrefix(command, "addx") {
 			err := fmt.Sprintf("Invalid command: %v\n", command)
 			panic(err)
@@ -50,10 +75,23 @@ func DayTen() {
 		}
 
 		cycle++
+
+		if register_value == x_position || register_value-1 == x_position || register_value+1 == x_position {
+			screen += "# "
+		} else {
+			screen += ". "
+		}
+		x_position++
+		if x_position == 40 {
+			screen += "\n"
+			x_position = 0
+		}
+
 		check_target_cycles(cycle, register_value, &signal_strengths_sum)
 
 		register_value += value
 	}
 
 	fmt.Printf("Part one: %v\n", signal_strengths_sum)
+	fmt.Printf("Part two: \n%v\n", screen)
 }
