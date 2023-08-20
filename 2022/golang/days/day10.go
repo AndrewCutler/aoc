@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-func check_target_cycles(cycle int,register_value int, sum *int) {
-	for _, c := range []int{20, 60, 100, 140,180,220} {
-		if cycle == c {
+func check_target_cycles(cycle int, register_value int, sum *int) {
+	for _, curr := range []int{20, 60, 100, 140, 180, 220} {
+		if cycle == curr {
 			signal_strength := cycle * register_value
 			*sum += signal_strength
 		}
