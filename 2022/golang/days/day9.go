@@ -21,8 +21,9 @@ func DayNine() {
 	}
 
 	scanner := bufio.NewScanner(file)
-	curr := Point{x: 0, y: 0}
-	// visited_points := []Point{Point{x: 0, y: 0}}
+	head := Point{x: 0, y: 0}
+	tail := Point{x: 0, y: 0}
+	visited_points := map[Point]bool{tail: true}
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -37,22 +38,49 @@ func DayNine() {
 		switch direction {
 		case "R":
 			{
-				fmt.Printf("Right: %v\n", distance)
 				for ; distance > 0; distance-- {
-					curr.x++
+					head.x++
+					tail.y = head.y
+					if head.x-tail.x > 1 {
+						tail.x++
+						visited_points[tail] = true
+					}
 				}
 			}
 		case "U":
 			{
 				fmt.Printf("Up: %v\n", distance)
+				for ; distance > 0; distance-- {
+					head.y++
+					tail.x = head.x
+					if head.y-tail.y > 1 {
+						tail.y++
+						visited_points[tail] = true
+					}
+				}
 			}
 		case "L":
 			{
-				fmt.Printf("Left: %v\n", distance)
+				for ; distance > 0; distance-- {
+					head.x--
+					tail.y = head.y
+					if head.x-tail.x < 1 {
+						tail.x--
+						visited_points[tail] = true
+					}
+				}
 			}
 		case "D":
 			{
-				fmt.Printf("Down: %v\n", distance)
+				fmt.Printf("Up: %v\n", distance)
+				for ; distance > 0; distance-- {
+					head.y--
+					tail.x = head.x
+					if head.y-tail.y < 1 {
+						tail.y--
+						visited_points[tail] = true
+					}
+				}
 			}
 		default:
 			{
@@ -60,4 +88,30 @@ func DayNine() {
 			}
 		}
 	}
+
+	cols := 0
+	rows := 0
+	for key := range visited_points {
+		if rows < key.x {
+			rows = key.x + 1
+		}
+		if cols < key.y {
+			cols = key.y + 1
+		}
+	}
+
+	for i := rows; i > 0; i-- {
+		line := ""
+		for j := cols; j > 0; j-- {
+			curr := Point{x: i, y: j}
+			if visited_points[curr] {
+				line += "#"
+			} else {
+				line += "*"
+			}
+		}
+		fmt.Println(line)
+	}
+
+	fmt.Println(len(visited_points))
 }
