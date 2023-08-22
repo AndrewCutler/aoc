@@ -9,10 +9,43 @@ import (
 )
 
 type Monkey struct {
-	number int
-	worry_levels []int // order matters
-	transform func(int) int // how worry level changes
-	toss func(int) // determines where to toss worry_level
+	number              int
+	worry_levels        []int         // order matters
+	transform_as_string string
+	toss                func(int) // determines where to toss worry_level
+}
+
+func (m *Monkey) apply_transform(i int) int {
+	t := m.transform_as_string
+	operand := t[:len(t)-1]
+	operator := t[len(t)-1:]
+
+	if operand == "old" {
+		switch operator {
+		case "+":
+			{
+				return i + i
+			}
+		case "*":
+			{
+				return i * i
+			}
+		}
+	}
+
+	operand_value, _ := strconv.Atoi(operand)
+	switch operator {
+	case "+":
+		{
+			return operand_value + i
+		}
+	case "*":
+		{
+			return operand_value * i
+		}
+	}
+
+	return 0
 }
 
 func DayEleven() {
@@ -46,6 +79,23 @@ func DayEleven() {
 				monkey.worry_levels = append(monkey.worry_levels, worry_level)
 			}
 			continue
+		}
+
+		if strings.HasPrefix(strings.Trim(line, " "), "Operation: ") {
+			var operand string
+			var operator string
+			operation := strings.Split(strings.Trim(line, " "), " ")
+			for i := len(operation) - 1; i >= 0; i-- {
+				if i == len(operation)-1 {
+					operand = operation[i]
+					monkey.transform_as_string += operand
+				}
+
+				if i == len(operation)-2 {
+					operator = operation[i]
+					monkey.transform_as_string += operator
+				}
+			}
 		}
 
 		fmt.Println(monkey)
