@@ -49,7 +49,6 @@ func (m *Monkey) apply_transform(i int) int {
 }
 
 func DayEleven() {
-	fmt.Println("day11")
 	file, err := os.Open("../data/day11.txt")
 
 	if err != nil {
@@ -84,20 +83,38 @@ func DayEleven() {
 		if strings.HasPrefix(strings.Trim(line, " "), "Operation: ") {
 			var operand string
 			var operator string
-			operation := strings.Split(strings.Trim(line, " "), " ")
-			for i := len(operation) - 1; i >= 0; i-- {
-				if i == len(operation)-1 {
-					operand = operation[i]
+			parsed := strings.Split(strings.Trim(line, " "), " ")
+			for i := len(parsed) - 1; i >= 0; i-- {
+				if i == len(parsed)-1 {
+					operand = parsed[i]
 					monkey.transform_as_string += operand
 				}
 
-				if i == len(operation)-2 {
-					operator = operation[i]
+				if i == len(parsed)-2 {
+					operator = parsed[i]
 					monkey.transform_as_string += operator
 				}
 			}
 		}
+		
+		if strings.HasPrefix(strings.Trim(line, " "), "Test: ") {
+			parsed := strings.Split(strings.Trim(line, " "), " ")
+			divisor := parsed[len(parsed)-1]
+			fmt.Printf("Divisor: %v\t", divisor)
+		}
 
-		fmt.Println(monkey)
+		if strings.HasPrefix(strings.Trim(line, " "), "If true: ") {
+			parsed := strings.Split(strings.Trim(line, " "), " ")
+			true_destination := parsed[len(parsed)-1]
+			fmt.Printf("True: %v\t", true_destination)
+		}
+
+		if strings.HasPrefix(strings.Trim(line, " "), "If false: ") {
+			parsed := strings.Split(strings.Trim(line, " "), " ")
+			false_destination := parsed[len(parsed)-1]
+			fmt.Printf("False: %v\n", false_destination)
+		}
+
+		// fmt.Println(monkey)
 	}
 }
