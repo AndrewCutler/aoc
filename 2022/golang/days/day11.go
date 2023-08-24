@@ -57,10 +57,9 @@ func (m *Monkey) apply_transform(i int) int {
 
 var call_counter map[int]int = make(map[int]int)
 
-func (m *Monkey) inspect() (bool, int) {
+func (m *Monkey) inspect(boredom_factor int) (bool, int) {
 	call_counter[m.number]++
 	if len(m.worry_levels) > 0 {
-		boredom_factor := 3
 		worry_level := m.worry_levels[0]
 		transformed := m.apply_transform(worry_level) / boredom_factor
 
@@ -69,8 +68,8 @@ func (m *Monkey) inspect() (bool, int) {
 	return false, 0
 }
 
-func (m *Monkey) toss(monkeys []*Monkey) {
-	is_true, worry_level := m.inspect()
+func (m *Monkey) toss(monkeys []*Monkey, boredom_factor int) {
+	is_true, worry_level := m.inspect(boredom_factor)
 
 	for _, curr := range monkeys {
 		if (is_true && curr.number == m.test.true_dest) || (!is_true && curr.number == m.test.false_dest) {
@@ -81,22 +80,22 @@ func (m *Monkey) toss(monkeys []*Monkey) {
 	}
 }
 
-func (m *Monkey) toss_all(monkeys []*Monkey) {
+func (m *Monkey) toss_all(monkeys []*Monkey, boredom_factor int) {
 	for range m.worry_levels {
-		m.toss(monkeys)
+		m.toss(monkeys, boredom_factor)
 	}
 }
 
-func play_round(monkeys []*Monkey) {
+func play_round(monkeys []*Monkey,boredom_factor int) {
 
 	for _, monkey := range monkeys {
-		monkey.toss_all(monkeys)
+		monkey.toss_all(monkeys, boredom_factor)
 	}
 }
 
-func play(rounds int, monkeys []*Monkey) {
+func play(rounds int, monkeys []*Monkey,boredom_factor int) {
 	for ; rounds > 0; rounds-- {
-		play_round(monkeys)
+		play_round(monkeys, boredom_factor)
 	}
 }
 
@@ -114,8 +113,9 @@ func get_two_most_active_counts() (int, int) {
 	return call_counter[keys[0]], call_counter[keys[1]]
 }
 
-func DayEleven() {
-	file, err := os.Open("../data/day11.txt")
+func DayEleven(boredom_factor int, rounds int) {
+	// 11.2 retiurns 2637590098 but should return 2713310158
+	file, err := os.Open("../data/day11.test.txt")
 
 	if err != nil {
 		panic(err)
@@ -217,7 +217,7 @@ NEXT_LINE:
 		}
 	}
 
-	play(20, monkeys)
+	play(rounds, monkeys, boredom_factor)
 	a, b := get_two_most_active_counts()
-	fmt.Printf("Part one: %v\n", a * b)
+	fmt.Printf("Solution: %v\n", a * b)
 }
