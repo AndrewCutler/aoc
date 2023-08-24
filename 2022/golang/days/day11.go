@@ -2,17 +2,22 @@ package days
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
 )
 
+type Test struct {
+	divisor int
+	true_dest int
+	false_dest int
+}
+
 type Monkey struct {
 	number              int
 	worry_levels        []int         // order matters
 	transform_as_string string
-	toss                func(int) // determines where to toss worry_level
+	test *Test
 }
 
 func (m *Monkey) apply_transform(i int) int {
@@ -48,6 +53,19 @@ func (m *Monkey) apply_transform(i int) int {
 	return 0
 }
 
+func (m *Monkey) toss(monkeys []*Monkey) {
+	worry_level := m.worry_levels[0]
+	is_true := worry_level % m.test.divisor == 0
+
+	for _, curr := range monkeys {
+		if (is_true && curr.number == m.test.true_dest) || (!is_true && curr.number == m.test.false_dest) {
+			curr.worry_levels = append(curr.worry_levels, worry_level)
+			m.worry_levels = m.worry_levels[1:]
+			return
+		}
+	}
+}
+
 func DayEleven() {
 	file, err := os.Open("../data/day11.txt")
 
@@ -57,6 +75,7 @@ func DayEleven() {
 
 	scanner := bufio.NewScanner(file)
 
+	var monkeys []*Monkey
 	var monkey Monkey
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -66,8 +85,6 @@ func DayEleven() {
 			monkey = Monkey{
 				number: number,
 			}
-			// fmt.Printf("monkey: %v", monkey)
-			continue
 		}
 
 		if strings.HasPrefix(strings.Trim(line, " "), "Starting items: ") {
@@ -77,7 +94,6 @@ func DayEleven() {
 				worry_level, _ := strconv.Atoi(worry_level_s)
 				monkey.worry_levels = append(monkey.worry_levels, worry_level)
 			}
-			continue
 		}
 
 		if strings.HasPrefix(strings.Trim(line, " "), "Operation: ") {
@@ -99,22 +115,50 @@ func DayEleven() {
 		
 		if strings.HasPrefix(strings.Trim(line, " "), "Test: ") {
 			parsed := strings.Split(strings.Trim(line, " "), " ")
-			divisor := parsed[len(parsed)-1]
-			fmt.Printf("Divisor: %v\t", divisor)
+			divisor, _ := strconv.Atoi(parsed[len(parsed)-1])
+			if monkey.test == nil {
+				monkey.test = &Test{
+					divisor: divisor,
+				}
+			} else {
+				monkey.test.divisor = divisor
+			}
 		}
 
 		if strings.HasPrefix(strings.Trim(line, " "), "If true: ") {
 			parsed := strings.Split(strings.Trim(line, " "), " ")
-			true_destination := parsed[len(parsed)-1]
-			fmt.Printf("True: %v\t", true_destination)
+			true_destination, _ := strconv.Atoi(parsed[len(parsed)-1])
+			if monkey.test == nil {
+				monkey.test = &Test{
+					true_dest: true_destination,
+				}
+			} else {
+				monkey.test.true_dest = true_destination
+			}
+
+			temp := monkey
+			monkeys = append(monkeys, &temp)
 		}
 
 		if strings.HasPrefix(strings.Trim(line, " "), "If false: ") {
 			parsed := strings.Split(strings.Trim(line, " "), " ")
-			false_destination := parsed[len(parsed)-1]
-			fmt.Printf("False: %v\n", false_destination)
+			false_destination, _ := strconv.Atoi(parsed[len(parsed)-1])
+			if monkey.test == nil {
+				monkey.test = &Test{
+					false_dest: false_destination,
+				}
+			} else {
+				monkey.test.false_dest = false_destination
+			}
+
+			temp := monkey
+			monkeys = append(monkeys, &temp)
 		}
 
-		// fmt.Println(monkey)
+		// if monkey.number == 1 {
+		// 	monkey.toss([])
+		// }
 	}
+
+	monkeys[0].toss(monkeys)
 }
