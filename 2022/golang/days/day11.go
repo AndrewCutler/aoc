@@ -8,16 +8,16 @@ import (
 )
 
 type Test struct {
-	divisor int
-	true_dest int
+	divisor    int
+	true_dest  int
 	false_dest int
 }
 
 type Monkey struct {
 	number              int
-	worry_levels        []int         // order matters
+	worry_levels        []int // order matters
 	transform_as_string string
-	test *Test
+	test                *Test
 }
 
 func (m *Monkey) apply_transform(i int) int {
@@ -53,9 +53,21 @@ func (m *Monkey) apply_transform(i int) int {
 	return 0
 }
 
+func (m *Monkey) inspect() bool {
+	if len(m.worry_levels) > 0 {
+		boredom_factor := 3
+		worry_level := m.worry_levels[0]
+		transformed := m.apply_transform(worry_level) / boredom_factor
+
+		return transformed%m.test.divisor == 0
+	}
+	return false
+}
+
 func (m *Monkey) toss(monkeys []*Monkey) {
+	is_true := m.inspect()
 	worry_level := m.worry_levels[0]
-	is_true := worry_level % m.test.divisor == 0
+	// is_true := worry_level % m.test.divisor == 0
 
 	for _, curr := range monkeys {
 		if (is_true && curr.number == m.test.true_dest) || (!is_true && curr.number == m.test.false_dest) {
@@ -112,7 +124,7 @@ func DayEleven() {
 				}
 			}
 		}
-		
+
 		if strings.HasPrefix(strings.Trim(line, " "), "Test: ") {
 			parsed := strings.Split(strings.Trim(line, " "), " ")
 			divisor, _ := strconv.Atoi(parsed[len(parsed)-1])
