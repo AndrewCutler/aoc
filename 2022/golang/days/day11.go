@@ -17,7 +17,7 @@ type Test struct {
 
 type Monkey struct {
 	number              int
-	worry_levels        []int // order matters
+	worry_levels        []int
 	transform_as_string string
 	test                *Test
 }
@@ -55,7 +55,6 @@ func (m *Monkey) apply_transform(i int) int {
 	return 0
 }
 
-// have to track how many times this is called
 var call_counter map[int]int = make(map[int]int)
 
 func (m *Monkey) inspect() (bool, int) {
@@ -72,8 +71,6 @@ func (m *Monkey) inspect() (bool, int) {
 
 func (m *Monkey) toss(monkeys []*Monkey) {
 	is_true, worry_level := m.inspect()
-	// worry_level := m.worry_levels[0]
-	// is_true := worry_level % m.test.divisor == 0
 
 	for _, curr := range monkeys {
 		if (is_true && curr.number == m.test.true_dest) || (!is_true && curr.number == m.test.false_dest) {
@@ -116,11 +113,6 @@ func get_two_most_active_counts() (int, int) {
 
 	return call_counter[keys[0]], call_counter[keys[1]]
 }
-
-// We have a list of monkeys, now each needs to take a "turn",
-// in numeric order, which consists of inspecting all
-// worry_levels until none are left.
-// Once every monkey has done this, the "round" is over.
 
 func DayEleven() {
 	file, err := os.Open("../data/day11.txt")
@@ -225,7 +217,6 @@ NEXT_LINE:
 		}
 	}
 
-	// execute one round
 	play(20, monkeys)
 	a, b := get_two_most_active_counts()
 	fmt.Printf("Part one: %v\n", a * b)
