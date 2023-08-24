@@ -2,6 +2,7 @@ package days
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -53,7 +54,10 @@ func (m *Monkey) apply_transform(i int) int {
 	return 0
 }
 
+// have to track how many times this is called
+var call_counter map[int]int = make(map[int]int)
 func (m *Monkey) inspect() bool {
+	call_counter[m.number]++
 	if len(m.worry_levels) > 0 {
 		boredom_factor := 3
 		worry_level := m.worry_levels[0]
@@ -78,6 +82,17 @@ func (m *Monkey) toss(monkeys []*Monkey) {
 	}
 }
 
+func (m *Monkey) toss_all(monkeys []*Monkey) {
+	for range m.worry_levels {
+		m.toss(monkeys)
+	}
+}
+
+// We have a list of monkeys, now each needs to take a "turn",
+// in numeric order, which consists of inspecting all 
+// worry_levels until none are left.
+// Once every monkey has done this, the "round" is over.
+
 func DayEleven() {
 	file, err := os.Open("../data/day11.txt")
 
@@ -89,6 +104,7 @@ func DayEleven() {
 
 	var monkeys []*Monkey
 	var monkey Monkey
+	NEXT_LINE:
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -148,6 +164,12 @@ func DayEleven() {
 				monkey.test.true_dest = true_destination
 			}
 
+			for _, curr := range monkeys {
+				if curr.number == monkey.number {
+					continue NEXT_LINE
+				}
+			}
+
 			temp := monkey
 			monkeys = append(monkeys, &temp)
 		}
@@ -163,14 +185,23 @@ func DayEleven() {
 				monkey.test.false_dest = false_destination
 			}
 
+			for _, curr := range monkeys {
+				if curr.number == monkey.number {
+					continue NEXT_LINE
+				}
+			}
+
 			temp := monkey
 			monkeys = append(monkeys, &temp)
 		}
-
-		// if monkey.number == 1 {
-		// 	monkey.toss([])
-		// }
+	}
+	
+	// execute one round
+	for _, monkey := range monkeys {
+		monkey.toss_all(monkeys)
 	}
 
-	monkeys[0].toss(monkeys)
+	// monkeys[0].toss(monkeys)
+	// monkeys[0].toss(monkeys)
+	fmt.Println(call_counter)
 }
