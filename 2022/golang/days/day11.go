@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -56,21 +57,22 @@ func (m *Monkey) apply_transform(i int) int {
 
 // have to track how many times this is called
 var call_counter map[int]int = make(map[int]int)
-func (m *Monkey) inspect() bool {
+
+func (m *Monkey) inspect() (bool, int) {
 	call_counter[m.number]++
 	if len(m.worry_levels) > 0 {
 		boredom_factor := 3
 		worry_level := m.worry_levels[0]
 		transformed := m.apply_transform(worry_level) / boredom_factor
 
-		return transformed%m.test.divisor == 0
+		return transformed%m.test.divisor == 0, transformed
 	}
-	return false
+	return false, 0
 }
 
 func (m *Monkey) toss(monkeys []*Monkey) {
-	is_true := m.inspect()
-	worry_level := m.worry_levels[0]
+	is_true, worry_level := m.inspect()
+	// worry_level := m.worry_levels[0]
 	// is_true := worry_level % m.test.divisor == 0
 
 	for _, curr := range monkeys {
@@ -88,8 +90,35 @@ func (m *Monkey) toss_all(monkeys []*Monkey) {
 	}
 }
 
+func play_round(monkeys []*Monkey) {
+
+	for _, monkey := range monkeys {
+		monkey.toss_all(monkeys)
+	}
+}
+
+func play(rounds int, monkeys []*Monkey) {
+	for ; rounds > 0; rounds-- {
+		play_round(monkeys)
+	}
+}
+
+func get_two_most_active_counts() (int, int) {
+	keys := make([]int, 0, len(call_counter))
+
+	for key := range call_counter {
+		keys = append(keys, key)
+	}
+
+	sort.SliceStable(keys, func(i, j int) bool{
+        return call_counter[keys[i]] > call_counter[keys[j]]
+    })
+
+	return call_counter[keys[0]], call_counter[keys[1]]
+}
+
 // We have a list of monkeys, now each needs to take a "turn",
-// in numeric order, which consists of inspecting all 
+// in numeric order, which consists of inspecting all
 // worry_levels until none are left.
 // Once every monkey has done this, the "round" is over.
 
@@ -104,7 +133,7 @@ func DayEleven() {
 
 	var monkeys []*Monkey
 	var monkey Monkey
-	NEXT_LINE:
+NEXT_LINE:
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -195,13 +224,9 @@ func DayEleven() {
 			monkeys = append(monkeys, &temp)
 		}
 	}
-	
-	// execute one round
-	for _, monkey := range monkeys {
-		monkey.toss_all(monkeys)
-	}
 
-	// monkeys[0].toss(monkeys)
-	// monkeys[0].toss(monkeys)
-	fmt.Println(call_counter)
+	// execute one round
+	play(20, monkeys)
+	a, b := get_two_most_active_counts()
+	fmt.Printf("Part one: %v\n", a * b)
 }
