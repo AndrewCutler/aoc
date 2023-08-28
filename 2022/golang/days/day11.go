@@ -3,6 +3,7 @@ package days
 import (
 	"bufio"
 	"fmt"
+	"math/big"
 	"os"
 	"sort"
 	"strconv"
@@ -10,19 +11,21 @@ import (
 )
 
 type Test struct {
-	divisor    int
+	divisor    big.Int
 	true_dest  int
 	false_dest int
 }
 
 type Monkey struct {
 	number              int
-	worry_levels        []int
+	worry_levels        []big.Int
+	// todo: no longer need this.
+	// can just write a fluent api with big.
 	transform_as_string string
 	test                *Test
 }
 
-func (m *Monkey) apply_transform(i int) int {
+func (m *Monkey) apply_transform(i *big.Int) *big.Int {
 	t := m.transform_as_string
 	operand := t[:len(t)-1]
 	operator := t[len(t)-1:]
@@ -31,69 +34,73 @@ func (m *Monkey) apply_transform(i int) int {
 		switch operator {
 		case "+":
 			{
-				return i + i
+				return new(big.Int).Add(i, i)
 			}
 		case "*":
 			{
-				return i * i
+				return new(big.Int).Mul(i, i)
 			}
 		}
 	}
 
-	operand_value, _ := strconv.Atoi(operand)
+	operand_value, _ := new(big.Int).SetString(operand, 10)
 	switch operator {
 	case "+":
 		{
-			return operand_value + i
+			return new(big.Int).Add(operand_value, i)
 		}
 	case "*":
 		{
-			return operand_value * i
+			return new(big.Int).Mul(operand_value, i)
 		}
 	}
 
-	return 0
+	return new(big.Int)
 }
 
-var call_counter map[int]int = make(map[int]int)
+var call_counter map[int]int = map[int]int{}
 
-func (m *Monkey) inspect(boredom_factor int) (bool, int) {
+func (m *Monkey) inspect(boredom_factor *big.Int) (bool, *big.Int) {
+	zero := new(big.Int)
 	call_counter[m.number]++
 	if len(m.worry_levels) > 0 {
 		worry_level := m.worry_levels[0]
-		transformed := m.apply_transform(worry_level) / boredom_factor
+		transformed := m.apply_transform(&worry_level)
+		transformed_with_boredom_factor := new(big.Int).Div(transformed, boredom_factor) 
+		_, mod := new(big.Int).DivMod(transformed_with_boredom_factor, &m.test.divisor, new(big.Int))
+		is_divisible := mod.Cmp(zero) == 0
 
-		return transformed%m.test.divisor == 0, transformed
+		return is_divisible, transformed_with_boredom_factor
 	}
-	return false, 0
+
+	return false, zero
 }
 
-func (m *Monkey) toss(monkeys []*Monkey, boredom_factor int) {
+func (m *Monkey) toss(monkeys []*Monkey, boredom_factor *big.Int) {
 	is_true, worry_level := m.inspect(boredom_factor)
 
 	for _, curr := range monkeys {
 		if (is_true && curr.number == m.test.true_dest) || (!is_true && curr.number == m.test.false_dest) {
-			curr.worry_levels = append(curr.worry_levels, worry_level)
+			curr.worry_levels = append(curr.worry_levels, *worry_level)
 			m.worry_levels = m.worry_levels[1:]
 			return
 		}
 	}
 }
 
-func (m *Monkey) toss_all(monkeys []*Monkey, boredom_factor int) {
+func (m *Monkey) toss_all(monkeys []*Monkey, boredom_factor *big.Int) {
 	for range m.worry_levels {
 		m.toss(monkeys, boredom_factor)
 	}
 }
 
-func play_round(monkeys []*Monkey,boredom_factor int) {
-
+func play_round(monkeys []*Monkey, boredom_factor *big.Int) {
 	for _, monkey := range monkeys {
 		monkey.toss_all(monkeys, boredom_factor)
 	}
 }
 
-func play(rounds int, monkeys []*Monkey,boredom_factor int) {
+func play(rounds int, monkeys []*Monkey, boredom_factor *big.Int) {
 	for ; rounds > 0; rounds-- {
 		play_round(monkeys, boredom_factor)
 	}
@@ -106,15 +113,14 @@ func get_two_most_active_counts() (int, int) {
 		keys = append(keys, key)
 	}
 
-	sort.SliceStable(keys, func(i, j int) bool{
-        return call_counter[keys[i]] > call_counter[keys[j]]
-    })
+	sort.SliceStable(keys, func(i, j int) bool {
+		return call_counter[keys[i]] > call_counter[keys[j]]
+	})
 
 	return call_counter[keys[0]], call_counter[keys[1]]
 }
 
-func DayEleven(boredom_factor int, rounds int) {
-	// 11.2 retiurns 2637590098 but should return 2713310158
+func DayEleven(boredom_factor *big.Int, rounds int) {
 	file, err := os.Open("../data/day11.test.txt")
 
 	if err != nil {
@@ -140,8 +146,8 @@ NEXT_LINE:
 			items_stringified := strings.Split(line, "Starting items: ")[1]
 			item_worry_levels_stringified := strings.Split(items_stringified, ", ")
 			for _, worry_level_s := range item_worry_levels_stringified {
-				worry_level, _ := strconv.Atoi(worry_level_s)
-				monkey.worry_levels = append(monkey.worry_levels, worry_level)
+				worry_level, _ := strconv.ParseUint(worry_level_s, 10, 64)
+				monkey.worry_levels = append(monkey.worry_levels, *big.NewInt(int64(worry_level)))
 			}
 		}
 
@@ -164,13 +170,13 @@ NEXT_LINE:
 
 		if strings.HasPrefix(strings.Trim(line, " "), "Test: ") {
 			parsed := strings.Split(strings.Trim(line, " "), " ")
-			divisor, _ := strconv.Atoi(parsed[len(parsed)-1])
+			divisor, _ := new(big.Int).SetString(parsed[len(parsed)-1], 10)
 			if monkey.test == nil {
 				monkey.test = &Test{
-					divisor: divisor,
+					divisor: *divisor,
 				}
 			} else {
-				monkey.test.divisor = divisor
+				monkey.test.divisor = *divisor
 			}
 		}
 
@@ -219,5 +225,6 @@ NEXT_LINE:
 
 	play(rounds, monkeys, boredom_factor)
 	a, b := get_two_most_active_counts()
-	fmt.Printf("Solution: %v\n", a * b)
+	fmt.Println(call_counter, a, b)
+	fmt.Printf("Solution: %v\n", a*b)
 }

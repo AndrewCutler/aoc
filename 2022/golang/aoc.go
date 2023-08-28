@@ -2,6 +2,7 @@ package main
 
 import (
 	days "aoc/days"
+	"math/big"
 	"os"
 )
 
@@ -46,11 +47,11 @@ func main() {
 		}
 	case "11.1":
 		{
-			days.DayEleven(3, 20)
+			days.DayEleven(big.NewInt(3), 20)
 		}
 	case "11.2":
 		{
-			days.DayEleven(1, 10000)
+			days.DayEleven(big.NewInt(3), 10000)
 		}
 	default:
 		panic("Invalid day specified. Valid options are: 1, 5, 6.1, 6.2, 7.")
