@@ -12,17 +12,17 @@ import (
 
 // var paths []Path
 
-type Square struct {
-	steps []int // each step is an int; 0 for up, 1 for right, 2 for down, 3 for left
+type TopoSquare struct {
+	steps  []int // each step is an int; 0 for up, 1 for right, 2 for down, 3 for left
 	height int
 	symbol string // a-z, S, E
-	top *Square
-	right *Square
+	top    *Square
+	right  *Square
 	bottom *Square
-	left *Square
+	left   *Square
 }
 
-func visit(curr *Square) {
+func visit(curr *TopoSquare) {
 	if curr == nil {
 		return
 	}
@@ -39,6 +39,18 @@ func DayTwelve() {
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+		line := scanner.Text()
+
+		for _, c := range line {
+
+			chars := []rune("abcdefghijklmnopqrstuvwxyzSE")
+			switch c {
+			case chars[0]:
+				{
+					fmt.Println(chars[0], "a")
+				}
+			}
+			// fmt.Println(c)
+		}
 	}
 }
