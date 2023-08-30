@@ -53,6 +53,10 @@ func main() {
 		{
 			days.DayEleven(big.NewInt(3), 10000)
 		}
+	case "12.1":
+		{
+			days.DayTwelve()
+		}
 	default:
 		panic("Invalid day specified. Valid options are: 1, 5, 6.1, 6.2, 7.")
 	}

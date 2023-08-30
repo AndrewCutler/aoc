@@ -17,8 +17,8 @@ type Test struct {
 }
 
 type Monkey struct {
-	number              int
-	worry_levels        []big.Int
+	number       int
+	worry_levels []big.Int
 	// todo: no longer need this.
 	// can just write a fluent api with big.
 	transform_as_string string
@@ -66,7 +66,7 @@ func (m *Monkey) inspect(boredom_factor *big.Int) (bool, *big.Int) {
 	if len(m.worry_levels) > 0 {
 		worry_level := m.worry_levels[0]
 		transformed := m.apply_transform(&worry_level)
-		transformed_with_boredom_factor := new(big.Int).Div(transformed, boredom_factor) 
+		transformed_with_boredom_factor := new(big.Int).Div(transformed, boredom_factor)
 		_, mod := new(big.Int).DivMod(transformed_with_boredom_factor, &m.test.divisor, new(big.Int))
 		is_divisible := mod.Cmp(zero) == 0
 
@@ -78,6 +78,10 @@ func (m *Monkey) inspect(boredom_factor *big.Int) (bool, *big.Int) {
 
 func (m *Monkey) toss(monkeys []*Monkey, boredom_factor *big.Int) {
 	is_true, worry_level := m.inspect(boredom_factor)
+
+	if worry_level.Cmp(new(big.Int).SetUint64(18446744073709551615)) == 1 {
+		fmt.Println(worry_level)
+	}
 
 	for _, curr := range monkeys {
 		if (is_true && curr.number == m.test.true_dest) || (!is_true && curr.number == m.test.false_dest) {
@@ -102,6 +106,10 @@ func play_round(monkeys []*Monkey, boredom_factor *big.Int) {
 
 func play(rounds int, monkeys []*Monkey, boredom_factor *big.Int) {
 	for ; rounds > 0; rounds-- {
+		fmt.Println(rounds)
+		if rounds == 9663 {
+			fmt.Println(rounds)
+		}
 		play_round(monkeys, boredom_factor)
 	}
 }
